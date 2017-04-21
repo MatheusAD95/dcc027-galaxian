@@ -5,7 +5,6 @@
 void Shader::compile(const GLchar *vertexShaderSource,
     const GLchar *fragmentShaderSource,
     const GLchar *geometrySource) {
-  std::cout << vertexShaderSource << "\n";
   //Vertex shader
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -53,21 +52,25 @@ void Shader::checkProgramCompileErrors(GLuint program) {
 }
 void Shader::compileFromPath(const GLchar *vertexPath,
     const GLchar *fragmentPath) {
-  std::string vertexSource = "";
   std::ifstream vertexSourceFile(vertexPath, std::ios::in);
-  if (vertexSourceFile.is_open()) {
-    std::string line;
-    while (getline(vertexSourceFile, line))
-      vertexSource += "\n" + line;
-    vertexSourceFile.close();
+  if (!vertexSourceFile.is_open()) {
+    std::cerr << "Error: Shader file " << vertexPath << " not found\n";
+    exit(-1);
+  }
+  std::string line = "",
+    vertexSource = "";
+  while (getline(vertexSourceFile, line))
+    vertexSource += "\n" + line;
+  vertexSourceFile.close();
+  std::ifstream fragmentSourceFile(fragmentPath, std::ios::in);
+  if (!fragmentSourceFile.is_open()) {
+    std::cerr << "Error: Shader file " << fragmentPath << " not found\n";
+    exit(-1);
   }
   std::string fragmentSource = "";
-  std::ifstream fragmentSourceFile(fragmentPath, std::ios::in);
-  if (fragmentSourceFile.is_open()) {
-    std::string line = "";
-    while (getline(fragmentSourceFile, line))
-      fragmentSource += "\n" + line;
-    fragmentSourceFile.close();
-  }
-  this->compile(vertexSource.c_str(), fragmentSource.c_str());
+  line = "";
+  while (getline(fragmentSourceFile, line))
+    fragmentSource += "\n" + line;
+  fragmentSourceFile.close();
+  compile(vertexSource.c_str(), fragmentSource.c_str());
 }
