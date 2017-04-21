@@ -54,6 +54,9 @@ add_definitions(
 add_executable(galaxian
   src/main.cc
   src/shader.cc
+  src/game.cc
+  src/triangle.cc
+  src/stars.cc
   src/math/matrix.cc
  
   )
