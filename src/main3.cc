@@ -8,12 +8,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/ext.hpp>
 #define GLEW_STATIC 1
+// Function prototypes
 void
 key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
+// The MAIN function, from here we start the application and run the game loop
 int main() {
   // Init GLFW
   glfwInit();
@@ -49,10 +50,14 @@ int main() {
     0.25f, 0.0f, 0.0f, // Right 
     0.0f,  0.5f, 0.0f  // Top   
   };
+
+
   glm::mat4 trans;
   trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-  //glm::mat4 result = trans * glm::mat4(-0.25f, 0.0f, 0.0f, 1.0f, 0.25f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.05f, 1.0f);
+  //glm::vec4 result = trans * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
   //printf("%f, %f, %f\n", result.x, result.y, result.z);
+  GLint uniTrans = glGetUniformLocation(s.getID(), "trans");
+  glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 
   GLuint VBO, VAO;
   glGenVertexArrays(1, &VAO);
@@ -62,17 +67,11 @@ int main() {
 
   glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
         (GLvoid*)0);
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  //GLint uniTrans = glGetUniformLocation(s.getID(), "trans");
-  std::cout << "GLM MATIRX:\n" << glm::to_string(trans) << "\n";
-  GLint uniTrans = glGetUniformLocation(s.getID(), "trans");
-  //glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-  glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[0][0]);
 
   //Note that this is allowed, the call to glVertexAttribPointer registered
   //VBO as the currently bound vertex buffer object so afterwards we can
@@ -81,19 +80,8 @@ int main() {
   //Unbind VAO (it's always a good thing to unbind any buffer/array to
   //prevent strange bugs)
   // Game loop
-
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-  glUseProgram(s.getID());
-  glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[0][0]);
   int cnt = 0;
   while (!glfwWindowShouldClose(window)) {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(s.getID());
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    //glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[0][0]);
-    //printf("Updating\n");
 
     //vertices[0] += 0.01f;
     //getchar();
@@ -103,17 +91,23 @@ int main() {
     glfwPollEvents();
     // Render
     // Clear the colorbuffer
-    //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     //translate(vertices, 0.01, 0.0);
     //getchar();
     // Draw our first triangle
+    glUseProgram(s.getID());
 
-    //glUseProgram(s.getID());
+    glBindVertexArray(VAO);
+      glBindBuffer(GL_ARRAY_BUFFER, VBO);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+          (GLvoid*)0);
+      glEnableVertexAttribArray(0);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    //glBindVertexArray(VAO);
-      //glDrawArrays(GL_TRIANGLES, 0, 3);
+      glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
 
     // Swap the screen buffers

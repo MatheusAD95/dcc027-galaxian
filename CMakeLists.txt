@@ -53,7 +53,6 @@ add_definitions(
 
 add_executable(galaxian
   src/main.cc
-  src/f.cpp
   src/shader.cc
   src/math/matrix.cc
  

@@ -5,6 +5,7 @@
 void Shader::compile(const GLchar *vertexShaderSource,
     const GLchar *fragmentShaderSource,
     const GLchar *geometrySource) {
+  std::cout << vertexShaderSource << "\n";
   //Vertex shader
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
