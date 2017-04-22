@@ -1,3 +1,4 @@
+#include "bullet.h"
 #include "game.h"
 #include "shader.h"
 #include "stars.h"
@@ -6,15 +7,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <unistd.h>
 static void key_callback(GLFWwindow*, int, int, int, int);
-GLFWwindow *Game::getWindow() {
-  return this->window;
-}
+static bool space_pressed = false;
 /// Initialize the glfw and glew libraries
 /// 
 /// Exits on any error during initialization
 void Game::init(int width, int height) {
+  this->width = width;
+  this->height = height;
   if (!glfwInit()) {
     std::cerr << "Failed to initialize GLFW\n";
     exit(-1);
@@ -62,9 +62,9 @@ void Game::loop() {
   //glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   Triangle t;
-  Stars s(30);
+  Stars s(20);
   // Cursor starts at the center // not working
-  glfwSetCursorPos(window, 800/2, 600/2);
+  glfwSetCursorPos(window, width/2, height/2);
   while (!glfwWindowShouldClose(window)) {
     // Check for events
     glfwPollEvents();
@@ -73,21 +73,27 @@ void Game::loop() {
     t.draw();
     glfwSwapBuffers(window);
     double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, NULL);
-    if (xpos > 800)
-      glfwSetCursorPos(window, 800, 300);
+    glfwGetCursorPos(window, &xpos, &ypos);
+    if (xpos > width)
+      glfwSetCursorPos(window, width, ypos);
     if (xpos < 0)
-      glfwSetCursorPos(window, 0, 300);
-    double dx = (xpos - 400)/400;
+      glfwSetCursorPos(window, 0, ypos);
+    double dx = (xpos - width/2)/(width/2);
     double max_vel = 0.05f;
     t.move(max_vel*dx);
-    //usleep(150000);
+    if (space_pressed) {
+      t.shoot();
+      space_pressed = false;
+    }
   }
   glfwTerminate();
 }
 static void
 key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+  // Esc closes the game
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    // Esc closes the game
     glfwSetWindowShouldClose(window, GL_TRUE);
+  // Space shoots
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    space_pressed = true;
 }

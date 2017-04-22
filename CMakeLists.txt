@@ -31,6 +31,7 @@ endif(INCLUDE_DISTRIB)
 
 
 include_directories(
+  external/soil/src/
   external/glfw-3.1.2/include/GLFW/
   external/glm-0.9.7.1/
   external/glew-1.13.0/include/
@@ -41,6 +42,8 @@ set(ALL_LIBS
   ${OPENGL_LIBRARY}
   glfw
   GLEW_1130
+  SOIL
+
   )
 
 add_definitions(
@@ -57,6 +60,7 @@ add_executable(galaxian
   src/game.cc
   src/triangle.cc
   src/stars.cc
+  src/bullet.cc
   src/math/matrix.cc
  
   )

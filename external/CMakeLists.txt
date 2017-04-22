@@ -54,3 +54,11 @@ target_link_libraries(GLEW_1130
 	${OPENGL_LIBRARY}
 	${EXTRA_LIBS}
 )
+
+### SOIL ###
+add_library( SOIL STATIC
+  soil/src/SOIL.c
+  soil/src/image_helper.c
+  soil/src/image_DXT.c
+  soil/src/stb_image_aug.c
+)
