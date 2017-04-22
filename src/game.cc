@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <unistd.h>
 static void key_callback(GLFWwindow*, int, int, int, int);
 GLFWwindow *Game::getWindow() {
   return this->window;
@@ -58,17 +59,18 @@ void Game::start() {
 /// 
 /// 
 void Game::loop() {
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+  //glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   Triangle t;
-  Stars s(100);
+  Stars s(30);
   // Cursor starts at the center // not working
   glfwSetCursorPos(window, 800/2, 600/2);
   while (!glfwWindowShouldClose(window)) {
     // Check for events
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT);
-    t.draw();
     s.draw();
+    t.draw();
     glfwSwapBuffers(window);
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, NULL);
@@ -79,6 +81,7 @@ void Game::loop() {
     double dx = (xpos - 400)/400;
     double max_vel = 0.05f;
     t.move(max_vel*dx);
+    //usleep(150000);
   }
   glfwTerminate();
 }
