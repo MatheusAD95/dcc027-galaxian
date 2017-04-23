@@ -4,8 +4,8 @@
 #include <SOIL.h>
 Triangle::Triangle() {
   posx = 0.0f;
-  // TODO path shouldn't be relative!
-  shader.compileFromPath("../src/triangle.vertex", "../src/triangle.frag");
+  shader.compileFromPath("../assets/shaders/spaceship.vt",
+      "../assets/shaders/spaceship.fr");
   glGenBuffers(1, &vbo);
   glGenVertexArrays(1, &vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -15,12 +15,6 @@ Triangle::Triangle() {
     0.07f, -0.95f, 1.0f, 0.0f,
     0.0f,  -0.8f, 0.5f, 1.0f
   };
-  //GLfloat vertices[] = {
-  //  -0.05f, -0.99f,
-  //  0.05f, -0.99f,
-  //  0.0f,  -0.8f,
-  //};
-  //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat),
@@ -39,7 +33,6 @@ Triangle::Triangle() {
       &height, 0, SOIL_LOAD_RGB);
   unsigned char* image3 = SOIL_load_image("../assets/spv33.png", &width,
       &height, 0, SOIL_LOAD_RGB);
-  printf("w %d h %d\n", width, height);
 
   glGenTextures(1, &texture);
 
@@ -89,6 +82,7 @@ void Triangle::draw() {
   trans = glm::translate(trans, glm::vec3(posx, 0.0f, 0.0f));
   GLint uniTrans = glGetUniformLocation(shader.getID(), "trans");
   glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[0][0]);
+  // Use a different texture depending on the direction and velocity
   if (this->dx >= 0.02)
     glBindTexture(GL_TEXTURE_2D, tx2);
   else if (this->dx <= -0.02)

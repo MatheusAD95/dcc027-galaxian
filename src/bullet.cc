@@ -6,7 +6,8 @@ Bullet::Bullet(GLfloat dx, GLfloat posx) {
   this->dy = 0.045f;
   this->posy = -0.82;
   this->posx = posx;
-  shader.compileFromPath("../src/bullet.vertex", "../src/bullet.frag");
+  shader.compileFromPath("../assets/shaders/bullet.vt",
+      "../assets/shaders/bullet.fr");
   srand(time(NULL));
   glGenBuffers(1, &vbo);
   glGenVertexArrays(1, &vao);

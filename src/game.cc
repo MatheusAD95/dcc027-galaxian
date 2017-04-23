@@ -3,9 +3,8 @@
 #include "shader.h"
 #include "stars.h"
 #include "triangle.h"
+#include "alien.h"
 #include <cstdlib>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 static void key_callback(GLFWwindow*, int, int, int, int);
 static bool space_pressed = false;
@@ -62,7 +61,8 @@ void Game::loop() {
   //glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   Triangle t;
-  Stars s(20);
+  //Alien t;
+  Stars s(100);
   // Cursor starts at the center // not working
   glfwSetCursorPos(window, width/2, height/2);
   while (!glfwWindowShouldClose(window)) {
@@ -74,17 +74,16 @@ void Game::loop() {
     glfwSwapBuffers(window);
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
-    if (xpos > width)
-      glfwSetCursorPos(window, width, ypos);
-    if (xpos < 0)
-      glfwSetCursorPos(window, 0, ypos);
-    double dx = (xpos - width/2)/(width/2);
-    double max_vel = 0.05f;
+    if (xpos > width) glfwSetCursorPos(window, width, ypos);
+    if (xpos < 0) glfwSetCursorPos(window, 0, ypos);
+    // Steps of 15 to velocity instead of being continuous
+    int idx = xpos - width/2; idx -= (idx%15);
+    double dx = ((double)idx)/(width/2),
+           max_vel = 0.05f;
     t.move(max_vel*dx);
-    if (space_pressed) {
-      t.shoot();
+    if (space_pressed)
+      t.shoot(),
       space_pressed = false;
-    }
   }
   glfwTerminate();
 }
