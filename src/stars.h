@@ -16,7 +16,5 @@ class Stars {
     glm::mat4 *trans;
     GLfloat *value;
     GLfloat *posy;
-    int refresh_rate, refresh_cnt;
-    //static const GLfloat velocity = 0.01f;
 };
 #endif

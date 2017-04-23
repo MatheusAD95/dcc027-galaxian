@@ -61,8 +61,8 @@ add_executable(galaxian
   src/triangle.cc
   src/stars.cc
   src/bullet.cc
-  src/math/matrix.cc
- 
+  src/alien.cc
+  src/texture.cc
   )
 target_link_libraries(galaxian
   ${ALL_LIBS}

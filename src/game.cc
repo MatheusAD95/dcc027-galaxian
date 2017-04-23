@@ -58,11 +58,10 @@ void Game::start() {
 /// 
 /// 
 void Game::loop() {
-  //glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   Triangle t;
-  //Alien t;
-  Stars s(100);
+  Alien a(20);
+  Stars s(500);
   // Cursor starts at the center // not working
   glfwSetCursorPos(window, width/2, height/2);
   while (!glfwWindowShouldClose(window)) {
@@ -71,6 +70,7 @@ void Game::loop() {
     glClear(GL_COLOR_BUFFER_BIT);
     s.draw();
     t.draw();
+    a.draw();
     glfwSwapBuffers(window);
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);

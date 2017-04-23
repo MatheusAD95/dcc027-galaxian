@@ -10,8 +10,6 @@ static double dRand() {
   return ((double)rand()/RAND_MAX)*sign;
 }
 Stars::Stars(int n) {
-  refresh_rate = 10;
-  refresh_cnt = 0;
   this->n = n;
   shader.compileFromPath("../assets/shaders/common.vt",
       "../assets/shaders/stars.fr");
@@ -34,7 +32,7 @@ Stars::Stars(int n) {
       x2, y2,
       x1, y2
     };
-    glBufferData(GL_ARRAY_BUFFER, 8*sizeof(vert), vert, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vert), vert, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     GLuint elements[] = {
       0, 1, 2,
@@ -66,39 +64,29 @@ Stars::Stars(int n) {
 ///
 ///
 ///
-#include <iostream>
 void Stars::draw() {
   glUseProgram(shader.getID());
   for (int i = 0; i < this->n; ++i) {
-    //glm::mat4 initial;
-    // if (!refresh_cnt) {
-    //   double dx = dRand(),
-    //          dy = dRand();
     posy[i] += value[i]*(-0.02f);
-    //std::cout << posy[i] << "\n";
+    // Generate a new star position on the top of the screen
+    // whenever a star leaves the screen
     if (posy[i] <= -1.0f) {
-      //std::cout << "Star leaving!\n";
-      //trans[i] = glm::t
       glm::mat4 initial;
       posy[i] = 1.0f;
       trans[i] = glm::translate(initial, glm::vec3(dRand(), 1.0, 0.0f));
       value[i] = 0.5f + dRand()/2;
-      //value[i] = 1.0f;
     } else {
       trans[i] = glm::translate(trans[i],
           glm::vec3(0.0f, value[i]*(-0.02f), 0.0f));
     }
-    // }
     GLint uniTrans = glGetUniformLocation(shader.getID(), "trans");
     glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[i][0][0]);
     GLint uniValue = glGetUniformLocation(shader.getID(), "value");
-    //GLfloat value = dRand();
     glUniform1f(uniValue, value[i]);
     glBindVertexArray(vao[i]);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
   }
-  //refresh_cnt = (refresh_cnt + 1)%refresh_rate;
 }
 ///
 ///
@@ -108,6 +96,7 @@ Stars::~Stars() {
   glDeleteBuffers(n, vbo);
   glDeleteBuffers(n, ebo);
   free(posy);
+  free(value);
   free(vao);
   free(vbo);
   free(trans);

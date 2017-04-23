@@ -20,7 +20,7 @@ Triangle::Triangle() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat),
       (GLvoid *)0);
   glVertexAttribPointer(1, 3, GL_FLOAT,GL_FALSE, 4*sizeof(GLfloat),
-      (GLvoid*)(2 * sizeof(GLfloat)));
+      (GLvoid*)(2*sizeof(GLfloat)));
   glEnableVertexAttribArray(1);
   // Textures
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -29,9 +29,9 @@ Triangle::Triangle() {
   int width, height;
   unsigned char* image = SOIL_load_image("../assets/spv2.png", &width,
       &height, 0, SOIL_LOAD_RGB);
-  unsigned char* image2 = SOIL_load_image("../assets/spv32.png", &width,
+  unsigned char* image2 = SOIL_load_image("../assets/spv4r.png", &width,
       &height, 0, SOIL_LOAD_RGB);
-  unsigned char* image3 = SOIL_load_image("../assets/spv33.png", &width,
+  unsigned char* image3 = SOIL_load_image("../assets/spv4l.png", &width,
       &height, 0, SOIL_LOAD_RGB);
 
   glGenTextures(1, &texture);
