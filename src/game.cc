@@ -6,8 +6,14 @@
 #include "alien.h"
 #include <cstdlib>
 #include <iostream>
+//TODO check if debug mode is working correctly
 static void key_callback(GLFWwindow*, int, int, int, int);
-static bool space_pressed = false;
+static void
+mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+static bool space_pressed = false,
+            right_mouse_btn = false,
+            debug_mode = false,
+            step = false;
 /// Initialize the glfw and glew libraries
 /// 
 /// Exits on any error during initialization
@@ -33,6 +39,7 @@ void Game::init(int width, int height) {
   }
   glfwMakeContextCurrent(this->window);
   glfwSetKeyCallback(window, key_callback);
+  glfwSetMouseButtonCallback(window, mouse_button_callback);
   // Mouse input configuration
   glfwSetInputMode(window, GLFW_CURSOR, 0);
   glewExperimental = GL_TRUE;
@@ -64,9 +71,14 @@ void Game::loop() {
   Stars s(500);
   // Cursor starts at the center // not working
   glfwSetCursorPos(window, width/2, height/2);
+  bool paused = false;
   while (!glfwWindowShouldClose(window)) {
     // Check for events
     glfwPollEvents();
+    if (step)
+      step = false, right_mouse_btn = true;
+    else if (right_mouse_btn)
+      continue;
     glClear(GL_COLOR_BUFFER_BIT);
     s.draw();
     t.draw();
@@ -95,4 +107,11 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
   // Space shoots
   if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     space_pressed = true;
+  if (key == GLFW_KEY_D && action == GLFW_PRESS)
+    step = true;
+}
+static void
+mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    right_mouse_btn = !right_mouse_btn;
 }
