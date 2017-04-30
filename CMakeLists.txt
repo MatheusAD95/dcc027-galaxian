@@ -63,6 +63,8 @@ add_executable(galaxian
   src/bullet.cc
   src/alien.cc
   src/texture.cc
+  src/collision/vector2D.cc
+  src/collision/polygon.cc
   )
 target_link_libraries(galaxian
   ${ALL_LIBS}

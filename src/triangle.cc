@@ -2,8 +2,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext.hpp>
 #include <SOIL.h>
+Bullet *Triangle::getBullet() {
+  return this->bullet;
+}
+GLfloat Triangle::getPosX() {
+  return this->posx;
+}
 Triangle::Triangle() {
   posx = 0.0f;
+  posy = -0.8f; //0.8 is the top, should we center??
   shader.compileFromPath("../assets/shaders/spaceship.vt",
       "../assets/shaders/spaceship.fr");
   glGenBuffers(1, &vbo);
@@ -25,41 +32,9 @@ Triangle::Triangle() {
   // Textures
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  int width, height;
-  unsigned char* image = SOIL_load_image("../assets/spv2.png", &width,
-      &height, 0, SOIL_LOAD_RGB);
-  unsigned char* image2 = SOIL_load_image("../assets/spv4r.png", &width,
-      &height, 0, SOIL_LOAD_RGB);
-  unsigned char* image3 = SOIL_load_image("../assets/spv4l.png", &width,
-      &height, 0, SOIL_LOAD_RGB);
-
-  glGenTextures(1, &texture);
-
-  glGenTextures(1, &tx2);
-
-  glGenTextures(1, &tx3);
-
-  glBindTexture(GL_TEXTURE_2D, texture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-      GL_UNSIGNED_BYTE, image);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  SOIL_free_image_data(image);
-
-
-  glBindTexture(GL_TEXTURE_2D, tx2);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-      GL_UNSIGNED_BYTE, image2);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  SOIL_free_image_data(image2);
-
-
-  glBindTexture(GL_TEXTURE_2D, tx3);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-      GL_UNSIGNED_BYTE, image3);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  SOIL_free_image_data(image3);
-
+  tx[0] = new Texture("../assets/spv2.png");
+  tx[1] = new Texture("../assets/spv4r.png");
+  tx[2] = new Texture("../assets/spv4l.png");
   glBindTexture(GL_TEXTURE_2D, 0);
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -83,12 +58,9 @@ void Triangle::draw() {
   GLint uniTrans = glGetUniformLocation(shader.getID(), "trans");
   glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[0][0]);
   // Use a different texture depending on the direction and velocity
-  if (this->dx >= 0.02)
-    glBindTexture(GL_TEXTURE_2D, tx2);
-  else if (this->dx <= -0.02)
-    glBindTexture(GL_TEXTURE_2D, tx3);
-  else
-    glBindTexture(GL_TEXTURE_2D, texture);
+  if (this->dx >= 0.02) tx[1]->bind();
+  else if (this->dx <= -0.02) tx[2]->bind();
+  else tx[0]->bind();
   glBindVertexArray(vao);
   glDrawArrays(GL_TRIANGLES, 0, 3);
   glBindVertexArray(0);

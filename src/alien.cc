@@ -1,7 +1,7 @@
 #include "alien.h"
 #include <SOIL.h>
 #include <iostream>
-#include  <cstdlib>
+#include <cstdlib>
 #include <ctime>
 #include <cstdlib>
 static double dRand() {
@@ -10,6 +10,7 @@ static double dRand() {
 }
 static double radius = 0.05f;
 Alien::Alien(int n) {
+  spaceship_posx = 0.0f;
   refresh_cnt = frame = 0;
   refresh_rate = 10;
   loop_direction = 1;
@@ -22,6 +23,9 @@ Alien::Alien(int n) {
   vbo = (GLuint *)malloc(n*sizeof(GLuint));
   ebo = (GLuint *)malloc(n*sizeof(GLuint));
   posx = (GLfloat *)malloc(n*sizeof(GLfloat));
+  posy = (GLfloat *)malloc(n*sizeof(GLfloat));
+  shape = (Polygon **)malloc(n*sizeof(Polygon *));
+  dead = (bool *)calloc(n, sizeof(bool));
   glGenBuffers(n, vbo);
   glGenVertexArrays(n, vao);
   glGenBuffers(n, ebo);
@@ -36,6 +40,8 @@ Alien::Alien(int n) {
       x2, y2, 1.0f, 1.0f,
       x1, y2, 0.0f, 1.0f
     };
+
+
     glBufferData(GL_ARRAY_BUFFER, sizeof(vert), vert, GL_STATIC_DRAW);
     GLuint elements[] = {
       0, 1, 2,
@@ -62,9 +68,18 @@ Alien::Alien(int n) {
   for (int i = 0; i < n; ++i) {
     double x = margin_left + 0.15f*(i - new_row);
     if (x >= margin_right)
-      y -= 0.12f, new_row += i, x = margin_left + 0.15f*(i - new_row);
+      y -= 0.12f, new_row = i, x = margin_left + 0.15f*(i - new_row);
     posx[i] = x;
+    posy[i] = y;
     trans[i] = glm::translate(initial, glm::vec3(x, y, 0.0f));
+    double x1 = -radius, x2 = radius,
+           y1 = -radius, y2 = radius;
+    Vector2D points[4];
+    points[0].x = posx[i] + x1, points[0].y = posy[i] + y1;
+    points[1].x = posx[i] + x2, points[1].y = posy[i] + y1;
+    points[2].x = posx[i] + x2, points[2].y = posy[i] + y2;
+    points[3].x = posx[i] + x1, points[3].y = posy[i] + y2;
+    shape[i] = new Polygon(4, points);
   }
   value = (GLfloat *)malloc(n*sizeof(GLfloat));
   t[0] = new Texture("../assets/alien1.png");
@@ -72,14 +87,49 @@ Alien::Alien(int n) {
   t[2] = new Texture("../assets/alien3.png");
   t[3] = new Texture("../assets/alien4.png");
 }
+bool Alien::collision(Bullet *b) {
+  if (b == NULL) return false;
+  for (int i = 0; i < n; ++i) {
+    if (dead[i]) continue;
+    if (shape[i]->isColliding(b->getShape())) {
+      dead[i] = true;
+      return true;
+    }
+  }
+  return false;
+}
+void Alien::updateAttackPosition(GLfloat posx) {
+  spaceship_posx = posx;
+  GLuint attack = rand()%400;
+  if (attack == 1) {
+    std::cout << "ATTACK!!\n";
+    GLuint attacker = rand()%n;
+  }
+
+}
 ///
 ///
 ///
 void Alien::draw() {
+  double x1 = -radius, x2 = radius,
+         y1 = -radius, y2 = radius;
   double vel = 0.004f;
   glUseProgram(shader.getID());
   for (int i = 0; i < this->n; ++i) {
+
     posx[i] += vel*direction;
+
+    if (dead[i])
+      continue;
+
+    Vector2D points[4];
+    points[0].x = posx[i] + x1, points[0].y = posy[i] + y1;
+    points[1].x = posx[i] + x2, points[1].y = posy[i] + y1;
+    points[2].x = posx[i] + x2, points[2].y = posy[i] + y2;
+    points[3].x = posx[i] + x1, points[3].y = posy[i] + y2;
+    delete shape[i];
+    shape[i] = new Polygon(4, points);
+
     trans[i] = glm::translate(trans[i],
         glm::vec3(vel*direction, 0.00f, 0.0f));
     GLint uniTrans = glGetUniformLocation(shader.getID(), "trans");
@@ -90,7 +140,7 @@ void Alien::draw() {
     glBindVertexArray(0);
   }
   for (int i = 0; i < n; ++i) 
-    if (posx[i] >= 0.9f || posx[i] <= -0.9f) {
+    if (!dead[i] && (posx[i] >= 0.9f || posx[i] <= -0.9f)) {
       direction *= -1;
       break;
     }
@@ -108,6 +158,10 @@ void Alien::draw() {
 ///
 ///
 Alien::~Alien() {
+  for (int i = 0; i < n; ++i)
+    delete shape[i];
+  free(shape);
+  free(dead);
   glDeleteVertexArrays(n, vao);
   glDeleteBuffers(n, vbo);
   glDeleteBuffers(n, ebo);
@@ -116,6 +170,7 @@ Alien::~Alien() {
   delete t[2];
   delete t[3];
   free(posx);
+  free(posy);
   free(vao);
   free(vbo);
   free(trans);

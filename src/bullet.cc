@@ -1,9 +1,20 @@
 #include "bullet.h"
 #include <glm/gtc/matrix_transform.hpp>
+Polygon *Bullet::getShape() {
+  return this->shape;
+}
+static GLfloat width = 0.004f,//0.004f,
+               height = 0.03f;
 Bullet::Bullet(GLfloat dx, GLfloat posx) {
+  Vector2D points[4];
+  points[0].x = posx + width, points[0].y = posy - height;
+  points[1].x = posx - width, points[1].y = posy - height;
+  points[2].x = posx - width, points[2].y = posy + height;
+  points[3].x = posx + width, points[3].y = posy + height;
+  shape = new Polygon(4, points);
   this->destroyed = false;
   this->dx = dx;
-  this->dy = 0.045f;
+  this->dy = 0.045f; //height is 0.01
   this->posy = -0.82;
   this->posx = posx;
   shader.compileFromPath("../assets/shaders/bullet.vt",
@@ -14,8 +25,8 @@ Bullet::Bullet(GLfloat dx, GLfloat posx) {
   glGenBuffers(1, &ebo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBindVertexArray(vao);
-  double x1 = 0.004f, x2 = -0.004f,
-         y1 = 0.0f, y2 = y1 + 0.01f;
+  double x1 = width, x2 = -width,
+         y1 = -height, y2 = height;
   GLfloat vert[] = {
     x1, y1,
     x2, y1,
@@ -39,11 +50,24 @@ Bullet::Bullet(GLfloat dx, GLfloat posx) {
 bool Bullet::isDestroyed() {
   return destroyed;
 }
+void Bullet::destroy() {
+  this->destroyed = true;
+}
 void Bullet::draw() {
-  glUseProgram(shader.getID());
-  glm::mat4 trans;
+
   posx += dx; // TODO before or after translate? which is better?
   posy += dy;
+
+  Vector2D points[4];
+  points[0].x = posx + width, points[0].y = posy - height;
+  points[1].x = posx - width, points[1].y = posy - height;
+  points[2].x = posx - width, points[2].y = posy + height;
+  points[3].x = posx + width, points[3].y = posy + height;
+  delete shape;
+  shape = new Polygon(4, points);
+
+  glUseProgram(shader.getID());
+  glm::mat4 trans;
   if (posy >= 1) {
     destroyed = true;
     return;
@@ -60,4 +84,5 @@ Bullet::~Bullet() {
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
   glDeleteBuffers(1, &ebo);
+  delete shape;
 }

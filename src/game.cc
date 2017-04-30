@@ -67,7 +67,7 @@ void Game::start() {
 void Game::loop() {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   Triangle t;
-  Alien a(20);
+  Alien a(30);
   Stars s(500);
   // Cursor starts at the center // not working
   glfwSetCursorPos(window, width/2, height/2);
@@ -83,6 +83,11 @@ void Game::loop() {
     s.draw();
     t.draw();
     a.draw();
+    a.updateAttackPosition(t.getPosX());
+    if (a.collision(t.getBullet())) {
+      t.getBullet()->destroy();
+    }
+    //std::cout << a.collision(t.getBullet()) << "\n";
     glfwSwapBuffers(window);
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
