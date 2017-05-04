@@ -1,8 +1,10 @@
 #ifndef _GALAXIAN_ALIEN_H_
 #define _GALAXIAN_ALIEN_H_
-#include "shader.h"
-#include "texture.h"
 #include "bullet.h"
+#include "powerup.h"
+#include "shader.h"
+#include "triangle.h"
+#include "texture.h"
 #include "collision/polygon.h"
 #include "game_object.h"
 #include <GL/glew.h>
@@ -14,8 +16,10 @@ class Alien {// : public GameObject {
     ~Alien();
     void draw();
     void updateAttackPosition(GLfloat posx);
-    bool collision(Bullet *b);
+    Powerup *collision(Bullet *b);
+    bool collision(Triangle *t);
   private:
+    //GLuint *attacking;
     int n;
     GLuint *vao, *vbo, *ebo, texture;
     Shader shader;

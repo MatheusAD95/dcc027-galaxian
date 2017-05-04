@@ -4,6 +4,7 @@
 #include "game_object.h"
 #include "shader.h"
 #include "texture.h"
+#include "collision/polygon.h"
 #include <GL/glew.h>
 class Triangle : public GameObject {
   public:
@@ -14,9 +15,15 @@ class Triangle : public GameObject {
     void shoot();
     GLfloat getPosX();
     Bullet *getBullet();
+    Polygon *getShape();
+    GLuint getHealth();
+    void decreaseHealth();
+    void increaseHealth();
   private:
+    GLuint health;
     GLuint vao, vbo;
     GLfloat posx, dx;
+    Polygon *shape;
     //GLfloat dx;
     Shader shader;
     Texture *tx[3];

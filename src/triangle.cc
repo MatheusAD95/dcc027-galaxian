@@ -8,9 +8,31 @@ Bullet *Triangle::getBullet() {
 GLfloat Triangle::getPosX() {
   return this->posx;
 }
+Polygon *Triangle::getShape() {
+  return this->shape;
+}
+GLuint Triangle::getHealth() {
+  return this->health;
+}
+void Triangle::decreaseHealth() {
+  --this->health;
+}
+void Triangle::increaseHealth() {
+  ++this->health;
+}
 Triangle::Triangle() {
+  this->health = 3;
+  //GLfloat x1 = -0.07f, x2 = -x1,
   posx = 0.0f;
-  posy = -0.8f; //0.8 is the top, should we center??
+  //posy = -0.8f; //0.8 is the top, should we center??
+  posy = 0.0f;
+
+  Vector2D points[3];
+  points[0].x = posx - 0.07f, points[0].y = posy - 0.95f;
+  points[1].x = posx + 0.07f, points[1].y = posy - 0.95f;
+  points[2].x = posx + 0.00f, points[2].y = posy - 0.80f;
+  shape = new Polygon(3, points);
+
   shader.compileFromPath("../assets/shaders/spaceship.vt",
       "../assets/shaders/spaceship.fr");
   glGenBuffers(1, &vbo);
@@ -43,6 +65,12 @@ Triangle::Triangle() {
 void Triangle::move(GLfloat dx) {
   this->dx = dx;
   posx += dx;
+  Vector2D points[3];
+  points[0].x = posx - 0.07f, points[0].y = posy - 0.95f;
+  points[1].x = posx + 0.07f, points[1].y = posy - 0.95f;
+  points[2].x = posx + 0.00f, points[2].y = posy - 0.80f;
+  delete shape;
+  shape = new Polygon(3, points);
   if (posx >= 0.93f) posx = 0.93f, this->dx = 0;
   if (posx <= -0.93f) posx = -0.93f, this->dx = 0;
 }
@@ -51,6 +79,7 @@ void Triangle::shoot() {
     return;
   bullet = new Bullet(dx/2, posx);
 }
+#include <iostream>
 void Triangle::draw() {
   glUseProgram(shader.getID());
   glm::mat4 trans;
@@ -63,7 +92,20 @@ void Triangle::draw() {
   else tx[0]->bind();
   glBindVertexArray(vao);
   glDrawArrays(GL_TRIANGLES, 0, 3);
+
+  //heath bar
+  glm::mat4 trans2;
+  for (int i = 0; i < this->health; ++i) {
+    trans = glm::scale(trans2, glm::vec3(0.3f, 0.3f, 1.0f));
+    trans = glm::translate(trans, glm::vec3(-3.2f + 0.15f*i, -2.30f, 0.0f));
+    uniTrans = glGetUniformLocation(shader.getID(), "trans");
+    glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[0][0]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+  }
+
   glBindVertexArray(0);
+
+
   if (bullet != NULL) {
     bullet->draw();
     if (bullet->isDestroyed()) {
@@ -71,6 +113,11 @@ void Triangle::draw() {
       bullet = NULL;
     }
   }
+
+  //glBindVertexArray(vao);
+  //glDrawArrays(GL_TRIANGLES, 0, 3);
+  //glBindVertexArray(0);
+
 }
 Triangle::~Triangle() {
   glDeleteVertexArrays(1, &vao);

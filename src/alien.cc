@@ -8,8 +8,9 @@ static double dRand() {
   int sign = rand()%2 ? 1 : -1;
   return ((double)rand()/RAND_MAX)*sign;
 }
-static double radius = 0.05f;
+static double radius = 0.045f;
 Alien::Alien(int n) {
+  //attacking = n + 1;
   spaceship_posx = 0.0f;
   refresh_cnt = frame = 0;
   refresh_rate = 10;
@@ -26,6 +27,7 @@ Alien::Alien(int n) {
   posy = (GLfloat *)malloc(n*sizeof(GLfloat));
   shape = (Polygon **)malloc(n*sizeof(Polygon *));
   dead = (bool *)calloc(n, sizeof(bool));
+  attacking = (bool *)calloc(n, sizeof(bool));
   glGenBuffers(n, vbo);
   glGenVertexArrays(n, vao);
   glGenBuffers(n, ebo);
@@ -53,8 +55,8 @@ Alien::Alien(int n) {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat),
         (GLvoid *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT,GL_FALSE, 4*sizeof(GLfloat),
-        (GLvoid*)(2*sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat),
+        (GLvoid *)(2*sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -87,11 +89,23 @@ Alien::Alien(int n) {
   t[2] = new Texture("../assets/alien3.png");
   t[3] = new Texture("../assets/alien4.png");
 }
-bool Alien::collision(Bullet *b) {
-  if (b == NULL) return false;
+#include "powerup.h"
+Powerup *Alien::collision(Bullet *b) {
+  if (b == NULL) return NULL;
   for (int i = 0; i < n; ++i) {
     if (dead[i]) continue;
     if (shape[i]->isColliding(b->getShape())) {
+      dead[i] = true;
+      Powerup *p = new Powerup(posx[i], posy[i]);
+      return p;
+    }
+  }
+  return NULL;
+}
+bool Alien::collision(Triangle *t) {
+  for (int i = 0; i < n; ++i) {
+    if (dead[i]) continue;
+    if (shape[i]->isColliding(t->getShape())) {
       dead[i] = true;
       return true;
     }
@@ -100,12 +114,16 @@ bool Alien::collision(Bullet *b) {
 }
 void Alien::updateAttackPosition(GLfloat posx) {
   spaceship_posx = posx;
-  GLuint attack = rand()%400;
+  //if (attacking != (n + 1)) return;
+  GLuint attack = rand()%300;
+  //while (attacking[attack]) attack = rand()%100;
   if (attack == 1) {
-    std::cout << "ATTACK!!\n";
+    //std::cout << "ATTACK!!\n";
     GLuint attacker = rand()%n;
+    while (attacking[attacker]) attacker = rand()%n;
+    attacking[attacker] = true;
+    //attacking = attacker;
   }
-
 }
 ///
 ///
@@ -117,7 +135,19 @@ void Alien::draw() {
   glUseProgram(shader.getID());
   for (int i = 0; i < this->n; ++i) {
 
-    posx[i] += vel*direction;
+    GLfloat dx = vel*direction,
+            dy = 0.0f;
+
+    if (attacking[i]) {
+      dy = -1.5*vel;
+      GLfloat dist = spaceship_posx - posx[i];
+      if (dist <= 0.04f && dist >= -0.04f) dx = 0.0f;
+      else if (spaceship_posx > posx[i]) dx = 1.5*vel;
+      else dx = -1.5*vel;
+    }
+
+    posy[i] += dy;
+    posx[i] += dx;
 
     if (dead[i])
       continue;
@@ -131,7 +161,7 @@ void Alien::draw() {
     shape[i] = new Polygon(4, points);
 
     trans[i] = glm::translate(trans[i],
-        glm::vec3(vel*direction, 0.00f, 0.0f));
+        glm::vec3(dx, dy, 0.0f));
     GLint uniTrans = glGetUniformLocation(shader.getID(), "trans");
     glUniformMatrix4fv(uniTrans, 1, GL_FALSE, &trans[i][0][0]);
     glBindVertexArray(vao[i]);

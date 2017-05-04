@@ -3,6 +3,7 @@
 Polygon *Bullet::getShape() {
   return this->shape;
 }
+static const GLfloat VELOCITY = 0.015f;
 static GLfloat width = 0.004f,//0.004f,
                height = 0.03f;
 Bullet::Bullet(GLfloat dx, GLfloat posx) {
@@ -14,7 +15,7 @@ Bullet::Bullet(GLfloat dx, GLfloat posx) {
   shape = new Polygon(4, points);
   this->destroyed = false;
   this->dx = dx;
-  this->dy = 0.045f; //height is 0.01
+  this->dy = VELOCITY;//0.015f; //height is 0.01
   this->posy = -0.82;
   this->posx = posx;
   shader.compileFromPath("../assets/shaders/bullet.vt",

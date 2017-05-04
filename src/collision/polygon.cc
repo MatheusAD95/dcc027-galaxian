@@ -19,16 +19,16 @@ static bool properIntersect(Vector2D P, Vector2D Q, Vector2D R, Vector2D S) {
 }
 bool Polygon::isColliding(Polygon *p) {
   Vector2D *p_points = p->points;
-  GLuint p_n = n;
+  GLuint p_n = p->n;
+  //std::cout << "BEGIN:\n";
   for (int i = 0; i < n; ++i) {
     int ii = (i + 1)%n;
     for (int j = 0; j < p_n; ++j) {
-      int jj = (j + 1)%n;
+      int jj = (j + 1)%p_n;
       Vector2D  p1 = points[i],
                 p2 = points[ii],
                 p3 = p_points[j],
                 p4 = p_points[jj];
-      //std::cout << p1.x << " " << p1.y << "/" << p2.x << " " << p2.y << "\n";
       //p1.printPoint();
       //std::cout << " ";
       //p2.printPoint();
@@ -36,10 +36,12 @@ bool Polygon::isColliding(Polygon *p) {
       //p3.printPoint();
       //std::cout << " ";
       //p4.printPoint();
-      //std::cout << "\n";
       if (properIntersect(points[i], points[ii], p_points[j], p_points[jj]))
+        //std::cout << "(this one)\n";
         return true;
+      //std::cout << "\n";
     }
   }
+  //std::cout << "END\n\n";
   return false;
 }
