@@ -1,12 +1,13 @@
 #include "bullet.h"
+#include <cstdio>
 #include <glm/gtc/matrix_transform.hpp>
 Polygon *Bullet::getShape() {
   return this->shape;
 }
-static const GLfloat VELOCITY = 0.015f;
-static GLfloat width = 0.004f,//0.004f,
+static GLfloat width = 0.004f,
                height = 0.03f;
-Bullet::Bullet(GLfloat dx, GLfloat posx) {
+static const GLfloat VELOCITY = 0.015f;
+Bullet::Bullet(GLfloat dx, GLfloat posx, GLfloat posy, GLint dir) {
   Vector2D points[4];
   points[0].x = posx + width, points[0].y = posy - height;
   points[1].x = posx - width, points[1].y = posy - height;
@@ -15,8 +16,8 @@ Bullet::Bullet(GLfloat dx, GLfloat posx) {
   shape = new Polygon(4, points);
   this->destroyed = false;
   this->dx = dx;
-  this->dy = VELOCITY;//0.015f; //height is 0.01
-  this->posy = -0.82;
+  this->dy = dir*VELOCITY;
+  this->posy = posy;
   this->posx = posx;
   shader.compileFromPath("../assets/shaders/bullet.vt",
       "../assets/shaders/bullet.fr");
@@ -55,10 +56,8 @@ void Bullet::destroy() {
   this->destroyed = true;
 }
 void Bullet::draw() {
-
   posx += dx; // TODO before or after translate? which is better?
   posy += dy;
-
   Vector2D points[4];
   points[0].x = posx + width, points[0].y = posy - height;
   points[1].x = posx - width, points[1].y = posy - height;
@@ -69,7 +68,7 @@ void Bullet::draw() {
 
   glUseProgram(shader.getID());
   glm::mat4 trans;
-  if (posy >= 1) {
+  if (posy >= 1 || posy <= -1.3) {
     destroyed = true;
     return;
   }

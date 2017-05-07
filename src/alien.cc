@@ -1,4 +1,7 @@
 #include "alien.h"
+#include "powerup.h"
+#include "health_powerup.h"
+#include "movespeed_powerup.h"
 #include <SOIL.h>
 #include <iostream>
 #include <cstdlib>
@@ -25,9 +28,13 @@ Alien::Alien(int n) {
   ebo = (GLuint *)malloc(n*sizeof(GLuint));
   posx = (GLfloat *)malloc(n*sizeof(GLfloat));
   posy = (GLfloat *)malloc(n*sizeof(GLfloat));
+  return_posx = (GLfloat *)malloc(n*sizeof(GLfloat));
+  return_posy = (GLfloat *)malloc(n*sizeof(GLfloat));
   shape = (Polygon **)malloc(n*sizeof(Polygon *));
   dead = (bool *)calloc(n, sizeof(bool));
   attacking = (bool *)calloc(n, sizeof(bool));
+  returning = (bool *)calloc(n, sizeof(bool));
+  shooting = (Bullet **)calloc(n, sizeof(Bullet *));
   glGenBuffers(n, vbo);
   glGenVertexArrays(n, vao);
   glGenBuffers(n, ebo);
@@ -89,14 +96,19 @@ Alien::Alien(int n) {
   t[2] = new Texture("../assets/alien3.png");
   t[3] = new Texture("../assets/alien4.png");
 }
-#include "powerup.h"
 Powerup *Alien::collision(Bullet *b) {
   if (b == NULL) return NULL;
   for (int i = 0; i < n; ++i) {
     if (dead[i]) continue;
     if (shape[i]->isColliding(b->getShape())) {
+      b->destroy();
       dead[i] = true;
-      Powerup *p = new Powerup(posx[i], posy[i]);
+      Powerup *p = NULL;
+      GLuint r = rand()%300;
+      if (r < 150)
+        p = new HealthPowerup(posx[i], posy[i]);
+      else if (r < 300)
+        p = new MovespeedPowerup(posx[i], posy[i]);
       return p;
     }
   }
@@ -109,21 +121,28 @@ bool Alien::collision(Triangle *t) {
       dead[i] = true;
       return true;
     }
+    Bullet *b = shooting[i];
+    if (b && t->getShape()->isColliding(b->getShape())) {
+      b->destroy();
+      return true;
+    }
   }
   return false;
 }
 void Alien::updateAttackPosition(GLfloat posx) {
   spaceship_posx = posx;
-  //if (attacking != (n + 1)) return;
   GLuint attack = rand()%300;
-  //while (attacking[attack]) attack = rand()%100;
   if (attack == 1) {
-    //std::cout << "ATTACK!!\n";
     GLuint attacker = rand()%n;
-    while (attacking[attacker]) attacker = rand()%n;
+    int cnt = 100;
+    while (--cnt && (attacking[attacker] || dead[attacker]))
+      attacker = rand()%n;
+    if (!cnt) return;
     attacking[attacker] = true;
-    //attacking = attacker;
+    return_posx[attacker] = this->posx[attacker];
+    return_posy[attacker] = this->posy[attacker];
   }
+  //
 }
 ///
 ///
@@ -134,24 +153,44 @@ void Alien::draw() {
   double vel = 0.004f;
   glUseProgram(shader.getID());
   for (int i = 0; i < this->n; ++i) {
-
+    if (dead[i])
+      continue;
     GLfloat dx = vel*direction,
             dy = 0.0f;
-
+    return_posx[i] += dx;
     if (attacking[i]) {
       dy = -1.5*vel;
       GLfloat dist = spaceship_posx - posx[i];
       if (dist <= 0.04f && dist >= -0.04f) dx = 0.0f;
       else if (spaceship_posx > posx[i]) dx = 1.5*vel;
       else dx = -1.5*vel;
+      GLfloat tgt = Bullet::aim(dx, posx[i], posy[i], spaceship_posx);
+      if (!shooting[i] && tgt < 0.1f && tgt >= -0.1f)
+        shooting[i] = new Bullet(dx, posx[i], posy[i], -1);
+    } else if (returning[i]) {
+      // dx value
+      GLfloat distx = return_posx[i] - posx[i];
+      if (distx <= 0.02f && distx >= -0.02f) dx = distx;
+      else if (return_posx[i] > posx[i]) dx = 2*vel;
+      else dx = -2*vel;
+      // dy value
+      GLfloat disty = return_posy[i] - posy[i];
+      if (disty <= 0.02f && disty >= -0.02f) dy = disty;
+      else if (return_posy[i] < posy[i]) dy = -vel;
+      //continue normal movement after it reaches its position
+      if (posx[i] == return_posx[i] && posy[i] == posy[i])
+        returning[i] = false;
     }
-
     posy[i] += dy;
     posx[i] += dx;
-
-    if (dead[i])
-      continue;
-
+    // when the alien reaches the bottom of the screen, it returns to the top
+    if (posy[i] <= -1.0f) {
+      returning[i] = true, attacking[i] = false;
+      posy[i] = 1.1f;
+      glm::mat4 initial;
+      trans[i] = glm::translate(initial,
+          glm::vec3(posx[i], posy[i], 0.0f));
+    }
     Vector2D points[4];
     points[0].x = posx[i] + x1, points[0].y = posy[i] + y1;
     points[1].x = posx[i] + x2, points[1].y = posy[i] + y1;
@@ -169,11 +208,26 @@ void Alien::draw() {
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
   }
-  for (int i = 0; i < n; ++i) 
-    if (!dead[i] && (posx[i] >= 0.9f || posx[i] <= -0.9f)) {
+  for (int i = 0; i < n; ++i) {
+    if (dead[i])
+      continue;
+    if (posx[i] >= 0.9f || posx[i] <= -0.9f) {
       direction *= -1;
       break;
     }
+    if (attacking[i] && (return_posx[i] >= 0.9f || return_posx[i] <= -0.9f)) {
+      direction *= -1;
+      break;
+    }
+  }
+  for (int i = 0; i < n; ++i) {
+    Bullet *b = shooting[i];
+    if (!b) continue;
+    if (b->isDestroyed())
+      delete b, shooting[i] = NULL;
+    else
+      b->draw();
+  }
   ++refresh_cnt;
   if (refresh_cnt == refresh_rate) {
     if (frame  == 0)
@@ -192,6 +246,9 @@ Alien::~Alien() {
     delete shape[i];
   free(shape);
   free(dead);
+  free(attacking);
+  free(returning);
+  free(shooting);
   glDeleteVertexArrays(n, vao);
   glDeleteBuffers(n, vbo);
   glDeleteBuffers(n, ebo);

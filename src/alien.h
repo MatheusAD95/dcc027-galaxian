@@ -24,11 +24,13 @@ class Alien {// : public GameObject {
     GLuint *vao, *vbo, *ebo, texture;
     Shader shader;
     Polygon **shape;
-    bool *dead, *attacking;
+    bool *dead, *attacking, *returning;
+    Bullet **shooting;
     glm::mat4 *trans;
     GLfloat *value;
     int direction;
-    GLfloat *posx, *posy;
+    GLfloat *posx, *posy,
+            *return_posx, *return_posy;
     Texture *t[4];
     unsigned refresh_cnt, refresh_rate, frame, loop_direction;
     GLfloat spaceship_posx;

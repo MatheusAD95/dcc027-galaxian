@@ -19,7 +19,10 @@ class Triangle : public GameObject {
     GLuint getHealth();
     void decreaseHealth();
     void increaseHealth();
+    void increaseSpeed();
+    void decreaseSpeed();
   private:
+    GLfloat velocity_multiplier;
     GLuint health;
     GLuint vao, vbo;
     GLfloat posx, dx;

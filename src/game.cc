@@ -85,6 +85,7 @@ void Game::loop() {
       delete a;
       delete t;
       delete s;
+      powerups.clear();
       t = new Triangle();
       a = new Alien(30);
       s = new Stars(500);
@@ -100,10 +101,8 @@ void Game::loop() {
     a->draw();
     a->updateAttackPosition(t->getPosX());
     Powerup *pup;
-    if ((pup = a->collision(t->getBullet()))) {
-      t->getBullet()->destroy();
+    if ((pup = a->collision(t->getBullet())))
       powerups.push_back(pup);
-    }
     for (int i = 0, e = powerups.size(); i < e; ++i) {
       Powerup *p = powerups[i];
       p->draw();

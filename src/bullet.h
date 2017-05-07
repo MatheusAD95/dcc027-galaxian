@@ -3,9 +3,20 @@
 #include <GL/glew.h>
 #include "shader.h"
 #include "collision/polygon.h"
+#include <cstdlib>
+#include <iostream>
 class Bullet {
   public:
-    Bullet(GLfloat dx, GLfloat posx);
+    static
+      GLfloat aim(GLfloat dx, GLfloat posx, GLfloat posy, GLfloat targetx) {
+      GLfloat dy = 0.015f; // TODO use static const for velocity
+      GLfloat targety = -0.82f; // spaceship location
+      GLfloat disty = targety - posy,
+              distx = targetx - posx;
+      int y_steps = disty/dy;
+      return targetx - (y_steps*dx + posx);
+    }
+    Bullet(GLfloat dx, GLfloat posx, GLfloat posy = -0.82f, GLint dir = 1);
     ~Bullet();
     void draw();
     void destroy();

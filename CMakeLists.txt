@@ -64,6 +64,8 @@ add_executable(galaxian
   src/alien.cc
   src/texture.cc
   src/powerup.cc
+  src/health_powerup.cc
+  src/movespeed_powerup.cc
   src/collision/vector2D.cc
   src/collision/polygon.cc
   )

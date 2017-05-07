@@ -3,8 +3,8 @@ static const
 GLfloat WIDTH = 0.02f,
         HEIGHT = 0.02f,
         VELOCITY = -0.02f;
-Powerup::Powerup(GLfloat posx, GLfloat posy) :
-  texture("../assets/increase_health_powerup.png") {
+Powerup::Powerup(GLfloat posx, GLfloat posy, const char *texture_path) :
+  texture(texture_path) {
   this->posx = posx;
   this->posy = posy;
   shader.compileFromPath("../assets/shaders/powerup.vt",
@@ -39,7 +39,7 @@ Powerup::Powerup(GLfloat posx, GLfloat posy) :
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   trans = glm::translate(trans, glm::vec3(posx, posy, 0.0f));
-  //texture = new Texture("../assets/increase_health_powerup.png");
+
   Vector2D points[4];
   points[0].x = posx + WIDTH, points[0].y = posy - HEIGHT;
   points[1].x = posx - WIDTH, points[1].y = posy - HEIGHT;
@@ -68,8 +68,11 @@ void Powerup::draw() {
 }
 bool Powerup::isColliding(Triangle *t) {
   if (shape->isColliding(t->getShape())) {
-    t->increaseHealth();
+    upgradeShip(t);
     return true;
   }
   return false;
+}
+Powerup::~Powerup() {
+  delete shape;
 }

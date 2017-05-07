@@ -14,14 +14,24 @@ Polygon *Triangle::getShape() {
 GLuint Triangle::getHealth() {
   return this->health;
 }
+
 void Triangle::decreaseHealth() {
   --this->health;
 }
 void Triangle::increaseHealth() {
   ++this->health;
+  if (health > 3) health = 3;
+}
+void Triangle::increaseSpeed() {
+  this->velocity_multiplier *= 1.33f;
+}
+void Triangle::decreaseSpeed() {
+  this->velocity_multiplier /= 1.33f;
 }
 Triangle::Triangle() {
-  this->health = 3;
+  // starting health
+  this->health = 2;
+  velocity_multiplier = 1.0f;
   //GLfloat x1 = -0.07f, x2 = -x1,
   posx = 0.0f;
   //posy = -0.8f; //0.8 is the top, should we center??
@@ -63,8 +73,9 @@ Triangle::Triangle() {
   bullet = NULL;
 }
 void Triangle::move(GLfloat dx) {
-  this->dx = dx;
-  posx += dx;
+  this->dx = velocity_multiplier*dx;
+  //std::cout << "dx: " << this->dx;
+  posx += this->dx;
   Vector2D points[3];
   points[0].x = posx - 0.07f, points[0].y = posy - 0.95f;
   points[1].x = posx + 0.07f, points[1].y = posy - 0.95f;

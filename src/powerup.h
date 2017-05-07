@@ -8,9 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 class Powerup {
   public:
-    Powerup(GLfloat posx, GLfloat posy);
+    //Powerup(GLfloat posx, GLfloat posy);
+    Powerup(GLfloat posx, GLfloat posy, const char *texture_path);
+    ~Powerup();
     void draw();
     bool isColliding(Triangle *t);
+    virtual void upgradeShip(Triangle *t) = 0;
   private:
     Shader shader;
     Polygon *shape;
