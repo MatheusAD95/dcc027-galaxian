@@ -22,14 +22,12 @@ To run:
 A few dependecies:
   * libudev for SFML
     * sudo apt-get install libudev-dev
-    * Need to fix /etc/gai.conf
-      #
-      #    For sites which prefer IPv4 connections change the last line to
-      #
-      precedence ::ffff:0:0/96 100
+      * Need to fix /etc/gai.conf (append the following line:)
+        precedence ::ffff:0:0/96 100
 
+  * OpenAL
+    * sudo apt-get install libopenal0a libopenal-dev
 
-  * OpenAL: sudo apt-get install libopenal0a libopenal-dev
-
-  * sudo apt install autoconf autogen automake build-essential libasound2-dev \
+  * Other stuff:
+    * sudo apt install autoconf autogen automake build-essential libasound2-dev \\
       libflac-dev libogg-dev libtool libvorbis-dev pkg-config python
