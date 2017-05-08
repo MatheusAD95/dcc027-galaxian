@@ -109,9 +109,12 @@ void Game::loop() {
       s = new Stars(500);
       restart = false;
     }
-    if (step)
+    if (step) {
+      a->printInfo();
+      t->printInfo();
+      printf("\n\n");
       step = false, right_mouse_btn = true;
-    else if (right_mouse_btn)
+    } else if (right_mouse_btn)
       continue;
     glClear(GL_COLOR_BUFFER_BIT);
     s->draw();

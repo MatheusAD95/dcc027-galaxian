@@ -14,6 +14,7 @@ static double dRand() {
 }
 static double radius = 0.045f;
 Alien::Alien(int n) {
+  this->dx = this->dy = 0.0f;
   //attacking = n + 1;
   spaceship_posx = 0.0f;
   refresh_cnt = frame = 0;
@@ -157,8 +158,7 @@ void Alien::draw() {
   for (int i = 0; i < this->n; ++i) {
     if (dead[i])
       continue;
-    GLfloat dx = vel*direction,
-            dy = 0.0f;
+    dx = vel*direction, dy = 0.0f;
     return_posx[i] += dx;
     if (attacking[i]) {
       dy = -1.5*vel;
@@ -180,7 +180,7 @@ void Alien::draw() {
       if (disty <= 0.02f && disty >= -0.02f) dy = disty;
       else if (return_posy[i] < posy[i]) dy = -vel;
       //continue normal movement after it reaches its position
-      if (posx[i] == return_posx[i] && posy[i] == posy[i])
+      if (posx[i] == return_posx[i] && posy[i] == return_posy[i])
         returning[i] = false;
     }
     posy[i] += dy;
@@ -263,4 +263,15 @@ Alien::~Alien() {
   free(vao);
   free(vbo);
   free(trans);
+}
+void Alien::printInfo() {
+  for (int i = 0; i < n; ++i) {
+    if (dead[i]) continue;
+   Bullet *b = shooting[i];
+   printf("Alien%d={pos=(%.2lf,%.2lf), shooting=%d};\n",
+       i, posx[i], posy[i], (b != NULL));
+   if (b != NULL)
+     b->printInfo();
+   printf("\n");
+  }
 }

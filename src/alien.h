@@ -11,7 +11,7 @@
 #include <GL/glew.h>
 #include <glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
-class Alien {// : public GameObject {
+class Alien : public GameObject {
   public:
     Alien(int n);
     ~Alien();
@@ -19,6 +19,7 @@ class Alien {// : public GameObject {
     void updateAttackPosition(GLfloat posx);
     Powerup *collision(Bullet *b, sf::Sound *s);
     bool collision(Triangle *t);
+    void printInfo();
   private:
     //GLuint *attacking;
     int n;
@@ -34,6 +35,7 @@ class Alien {// : public GameObject {
             *return_posx, *return_posy;
     Texture *t[4];
     unsigned refresh_cnt, refresh_rate, frame, loop_direction;
+    GLfloat dx, dy;
     GLfloat spaceship_posx;
 };
 #endif

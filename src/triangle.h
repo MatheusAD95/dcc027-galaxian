@@ -21,6 +21,7 @@ class Triangle : public GameObject {
     void increaseHealth();
     void increaseSpeed();
     void decreaseSpeed();
+    void printInfo();
   private:
     GLfloat velocity_multiplier;
     GLuint health;

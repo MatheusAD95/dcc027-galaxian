@@ -3,10 +3,11 @@
 #include <GL/glew.h>
 #include "shader.h"
 #include "collision/polygon.h"
+#include "game_object.h"
 #include "SFML/Audio.hpp"
 #include <cstdlib>
 #include <iostream>
-class Bullet {
+class Bullet : public GameObject {
   public:
     static
       GLfloat aim(GLfloat dx, GLfloat posx, GLfloat posy, GLfloat targetx) {
@@ -23,6 +24,7 @@ class Bullet {
     void destroy();
     bool isDestroyed();
     Polygon *getShape();
+    void printInfo();
   private:
     bool destroyed;
     GLfloat dx, dy;

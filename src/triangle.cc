@@ -131,6 +131,15 @@ void Triangle::draw() {
 
 }
 Triangle::~Triangle() {
+  if (bullet)
+    delete bullet;
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
+}
+void Triangle::printInfo() {
+  printf("Spaceship={pos=(%.2lf,%.2lf), vel=%.2lf, health=%d, shooting=%d};\n",
+      this->posx, -0.82, this->dx, this->health, (this->bullet != NULL));
+  if (this->bullet != NULL)
+    bullet->printInfo();
+  printf("\n");
 }

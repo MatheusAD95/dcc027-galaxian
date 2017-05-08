@@ -103,3 +103,7 @@ Bullet::~Bullet() {
   delete sound;
   delete buffer;
 }
+void Bullet::printInfo() {
+  printf("Bullet = {pos=(%.2lf,%.2lf), vel=(%.2lf,%.2lf)};\n",
+      this->posx, this->posy, dx, dy);
+}
