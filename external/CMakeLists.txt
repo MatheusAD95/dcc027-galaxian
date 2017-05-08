@@ -15,9 +15,12 @@ add_definitions(
 
 add_subdirectory (glfw-3.1.2)
 
+add_subdirectory (SFML-2.4.2)
+
 include_directories(
 	glfw-3.1.2/include/GLFW/
 	glew-1.13.0/include/
+        SFML-2.4.2/include/
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

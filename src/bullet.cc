@@ -8,6 +8,21 @@ static GLfloat width = 0.004f,
                height = 0.03f;
 static const GLfloat VELOCITY = 0.015f;
 Bullet::Bullet(GLfloat dx, GLfloat posx, GLfloat posy, GLint dir) {
+  //SoundManager::playBulletSound();
+
+  buffer = new sf::SoundBuffer();
+  if (dir == 1)
+    buffer->loadFromFile("../assets/sounds/bullet0.wav");
+  else
+    buffer->loadFromFile("../assets/sounds/bullet1.wav");
+  sound = new sf::Sound();
+  sound->setBuffer(*buffer);
+  sound->setLoop(false);
+  sound->setPitch(1.5f);
+  sound->setVolume(75);
+  sound->play();
+
+
   Vector2D points[4];
   points[0].x = posx + width, points[0].y = posy - height;
   points[1].x = posx - width, points[1].y = posy - height;
@@ -85,4 +100,6 @@ Bullet::~Bullet() {
   glDeleteBuffers(1, &vbo);
   glDeleteBuffers(1, &ebo);
   delete shape;
+  delete sound;
+  delete buffer;
 }

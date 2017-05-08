@@ -1,6 +1,7 @@
 #include "alien.h"
 #include "powerup.h"
 #include "health_powerup.h"
+#include "SFML/Audio.hpp"
 #include "movespeed_powerup.h"
 #include <SOIL.h>
 #include <iostream>
@@ -96,11 +97,12 @@ Alien::Alien(int n) {
   t[2] = new Texture("../assets/alien3.png");
   t[3] = new Texture("../assets/alien4.png");
 }
-Powerup *Alien::collision(Bullet *b) {
+Powerup *Alien::collision(Bullet *b, sf::Sound *s) {
   if (b == NULL) return NULL;
   for (int i = 0; i < n; ++i) {
     if (dead[i]) continue;
     if (shape[i]->isColliding(b->getShape())) {
+      s->play();
       b->destroy();
       dead[i] = true;
       Powerup *p = NULL;

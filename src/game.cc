@@ -75,6 +75,24 @@ void Game::loop() {
   Stars *s = new Stars(500);
   std::vector <Powerup *> powerups;
   Powerup *p;
+
+  sf::SoundBuffer *hit0_b = new sf::SoundBuffer();
+  hit0_b->loadFromFile("../assets/sounds/hit0.wav");
+  sf::Sound *hit0_s = new sf::Sound();
+  hit0_s->setBuffer(*hit0_b);
+  hit0_s->setLoop(false);
+  hit0_s->setPitch(1.5f);
+  hit0_s->setVolume(75);
+
+  sf::SoundBuffer *hit1_b = new sf::SoundBuffer();
+  hit1_b->loadFromFile("../assets/sounds/hit0.wav");
+  sf::Sound *hit1_s = new sf::Sound();
+  hit1_s->setBuffer(*hit1_b);
+  hit1_s->setLoop(false);
+  hit1_s->setPitch(1.5f);
+  hit1_s->setVolume(75);
+
+
   // Cursor starts at the center // not working
   glfwSetCursorPos(window, width/2, height/2);
   bool paused = false;
@@ -101,7 +119,7 @@ void Game::loop() {
     a->draw();
     a->updateAttackPosition(t->getPosX());
     Powerup *pup;
-    if ((pup = a->collision(t->getBullet())))
+    if ((pup = a->collision(t->getBullet(), hit1_s)))
       powerups.push_back(pup);
     for (int i = 0, e = powerups.size(); i < e; ++i) {
       Powerup *p = powerups[i];
@@ -111,8 +129,10 @@ void Game::loop() {
         delete p;
       }
     }
-    if (a->collision(t))
+    if (a->collision(t)) {
+      hit0_s->play();
       t->decreaseHealth();
+    }
     //std::cout << a.collision(t.getBullet()) << "\n";
     glfwSwapBuffers(window);
     double xpos, ypos;
@@ -132,6 +152,10 @@ void Game::loop() {
       break;
     }
   }
+  delete hit0_s;
+  delete hit0_b;
+  delete hit1_s;
+  delete hit1_b;
   delete a;
   delete t;
   delete s;

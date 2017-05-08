@@ -7,6 +7,7 @@
 #include "texture.h"
 #include "collision/polygon.h"
 #include "game_object.h"
+#include "SFML/Audio.hpp"
 #include <GL/glew.h>
 #include <glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,7 +17,7 @@ class Alien {// : public GameObject {
     ~Alien();
     void draw();
     void updateAttackPosition(GLfloat posx);
-    Powerup *collision(Bullet *b);
+    Powerup *collision(Bullet *b, sf::Sound *s);
     bool collision(Triangle *t);
   private:
     //GLuint *attacking;

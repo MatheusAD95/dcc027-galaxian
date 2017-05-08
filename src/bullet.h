@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include "shader.h"
 #include "collision/polygon.h"
+#include "SFML/Audio.hpp"
 #include <cstdlib>
 #include <iostream>
 class Bullet {
@@ -29,5 +30,7 @@ class Bullet {
     Polygon *shape;
     Shader shader;
     GLuint vao, vbo, ebo;
+    sf::Sound *sound;
+    sf::SoundBuffer *buffer;
 };
 #endif
